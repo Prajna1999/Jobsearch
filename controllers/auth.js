@@ -23,7 +23,7 @@ const login = async (req, res) => {
   if (!user) {
     throw new UnauthenticatedError("Invalid Crendential");
   }
-  //create password
+  //if password valid create a token and send to the FE
   const isPasswordValid = await user.comparePassword(password);
 
   if (!isPasswordValid) {
