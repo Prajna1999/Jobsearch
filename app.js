@@ -6,7 +6,6 @@ const cors = require("cors");
 const rateLimit = require("express-rate-limit");
 const xss = require("xss-clean");
 
-
 const express = require("express");
 const app = express();
 
@@ -16,20 +15,20 @@ const connectDB = require("./db/connect");
 // error handler
 const notFoundMiddleware = require("./middleware/not-found");
 const errorHandlerMiddleware = require("./middleware/error-handler");
-const authUser=require("./middleware/authentication")
+const authUser = require("./middleware/authentication");
 
 // routes
 const authRoutes = require("./routes/auth");
 const jobsRoutes = require("./routes/jobs");
-app.set('trust proxy', true);
-app.use(rateLimit(
-  {
+app.set("trust proxy", true);
+app.use(
+  rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-	  max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
-	  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-	  legacyHeaders: false,
-  }
-))
+    max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+    standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+    legacyHeaders: false,
+  })
+);
 app.use(express.json());
 // extra packages
 app.use(cors());
