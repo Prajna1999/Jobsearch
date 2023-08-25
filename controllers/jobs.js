@@ -35,23 +35,25 @@ const createJob = async (req, res) => {
 
 const updateJob = async (req, res) => {
   const {
-    body={company, position},
+    body:{company, position},
     user:{id:userId},
     params:{id:jobId},
   }=req
 
   console.log(req.user);
+  console.log(req.params.id);
   console.log(req.body, req.params);
   if(company ==="" || position ==="" ){
     throw new BadRequestError("Company and position are required")
   }
 
   const job = await Job.findOneAndUpdate(
-    {id:jobId, createdBy:userId},
-    {...req.body},
+    {_id:req.params.id, createdBy:userId},
+    req.body,
     { new: true , runValidators: true}
   )
-//     console.log(job)
+    console.log(job)
+    // return res.status(StatusCodes.OK).json({job});
     return res.status(StatusCodes.OK).json({job});
 };
 
