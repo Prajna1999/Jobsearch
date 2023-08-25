@@ -2,7 +2,8 @@ const Job = require("../models/Job");
 
 const { StatusCodes } = require("http-status-codes");
 
-const { BadRequestError, UnauthenticatedError } = require("../errors/index");
+const { BadRequestError, UnauthenticatedError, NotFoundError } = require("../errors/index");
+
 const getAllJobs = async (req, res) => {
     // jons associated with the user
     const jobs = await Job.find({createdBy:req.user.id}).sort('createdAt DESC');
@@ -10,7 +11,17 @@ const getAllJobs = async (req, res) => {
 };
 
 const getJob = async (req, res) => {
-  res.send("GET jobs by id");
+  const {user:{id}, params:{id:jobId}}=req;
+
+  const job=await  Job.findOne({
+    _id:jobId,
+    createdBy:id,
+  })
+
+if(!job){
+    throw new NotFoundError(`No job with ${jobId}`)
+}
+res.status(StatusCodes.OK).json({ job})
 };
 
 const createJob = async (req, res) => {
@@ -23,11 +34,42 @@ const createJob = async (req, res) => {
 };
 
 const updateJob = async (req, res) => {
-  res.send("Update a Job");
+  const {
+    body={company, position},
+    user:{id:userId},
+    params:{id:jobId},
+  }=req
+
+  if(company ==="" || position ==="" ){
+    throw new BadRequestError("Company and position are required")
+  }
+
+  const job = await Job.findOneAndUpdate(
+    {_id:jobId, createdBy:userId},
+    {body},
+    { new: true , runValidators: true}
+  )
+    console.log(job)
+    return res.status(StatusCodes.OK).json({job});
 };
 
 const deleteJob = async (req, res) => {
-  res.send("Delete a Job");
+  const {
+    user:{id},
+    params:{id:jobId},
+  }=req;
+
+//   find the job by id
+  const job = await Job.findOneAndDelete({
+    _id:jobId,
+    createdBy:id,
+  })
+
+  if(!job){
+    throw new NotFoundError(`No job with ${jobId}`)
+  }
+
+  res.status(StatusCodes.OK).send({"msg":"success"});
 };
 
 module.exports = {
